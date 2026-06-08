@@ -1,20 +1,14 @@
 """
-ai_engine.py — Antarmuka inferensi AI untuk PneumoScan.
+ai_engine.py — Antarmuka inferensi AI untuk FindingPneumo.
 
-╔══════════════════════════════════════════════════════════════════════════╗
-║  STATUS SAAT INI: MODE MOCK (dummy).                                       ║
-║  Belum memakai TensorFlow / file .h5 — tujuannya agar SELURUH alur web     ║
-║  (upload → hasil → 3 heatmap → simpan → PDF) bisa diuji lebih dulu.        ║
-║                                                                            ║
-║  CARA MENGAKTIFKAN MODEL ASLI (Fase 3 - integrasi akhir):                  ║
-║    1. Taruh 3 file .h5 di folder models/.                                   ║
-║    2. Isi fungsi _predict_real() di bawah dengan loading model +           ║
-║       preprocessing per-arsitektur + Grad-CAM (kode sudah disiapkan        ║
-║       kerangkanya, tinggal di-uncomment & disesuaikan).                     ║
-║    3. Set USE_REAL_MODELS = True.                                          ║
-║                                                                            ║
-║  Tanda tangan analyze_scan() TIDAK berubah, jadi web tidak perlu diubah.   ║
-╚══════════════════════════════════════════════════════════════════════════╝
+Mode kerja ditentukan oleh USE_REAL_MODELS:
+  - True  (default): ensemble 3 model .keras asli (DenseNet121 + ResNet50 +
+    InceptionV3) + Grad-CAM per-arsitektur. Lihat _predict_real().
+  - False: MODE MOCK/demo — hasil & heatmap dummy tanpa TensorFlow, berguna
+    untuk menguji alur web tanpa file model. Lihat _predict_mock().
+
+analyze_scan() adalah satu-satunya API yang dipakai web; tanda tangannya sama
+untuk kedua mode, jadi web tidak perlu tahu mode mana yang aktif.
 """
 from __future__ import annotations
 

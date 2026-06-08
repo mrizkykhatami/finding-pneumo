@@ -1,7 +1,7 @@
 """
 Blueprint pemindaian (Fase 3 & 4):
   - Form upload X-ray (membawa patient_id dari halaman pasien).
-  - Jalankan analisis AI (saat ini lewat ai_engine MOCK) → simpan 3 heatmap.
+  - Jalankan analisis AI (ensemble 3 model via ai_engine) → simpan 3 heatmap.
   - Halaman hasil: prediksi, confidence, 3 heatmap, catatan dokter.
   - Generate laporan PDF (Fase 4).
 """
@@ -82,7 +82,7 @@ def analyze():
         flash("Ukuran file melebihi 12 MB.", "error")
         return redirect(url_for("scan.new_scan", patient_id=patient_id))
 
-    # Jalankan analisis (MOCK untuk saat ini).
+    # Jalankan analisis AI (ensemble 3 model).
     try:
         result = analyze_scan(original_abs, upload_dir, basename)
     except Exception as exc:  # noqa: BLE001 — tampilkan error apa pun ke dokter dengan ramah
@@ -141,7 +141,7 @@ def report_pdf(scan_id):
     from app.services.report import build_report_pdf  # impor lokal agar reportlab hanya dimuat saat perlu
 
     pdf_buffer = build_report_pdf(scan, current_app.root_path)
-    filename = f"PneumoScan_{scan.patient_id}_scan{scan.id}.pdf"
+    filename = f"FindingPneumo_{scan.patient_id}_scan{scan.id}.pdf"
     return send_file(
         pdf_buffer, mimetype="application/pdf",
         as_attachment=True, download_name=filename,
