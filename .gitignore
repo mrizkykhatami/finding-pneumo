@@ -1,0 +1,32 @@
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Database
+*.db
+*.sqlite3
+instance/
+
+# Model files (terlalu besar untuk GitHub — bagikan via Google Drive)
+*.h5
+*.keras
+models/
+
+# Uploaded X-rays & generated heatmaps
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Secrets
+.env
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+.claude/
