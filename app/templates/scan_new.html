@@ -39,7 +39,7 @@
         <img id="preview" class="hidden mx-auto max-h-56 rounded-lg mb-3 object-contain" alt="preview">
         <div id="dz-text">
           <svg class="w-9 h-9 mx-auto text-slate-300 dark:text-slate-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Klik untuk pilih gambar</p>
+          <p class="text-sm font-medium text-slate-600 dark:text-slate-300">Klik atau <strong>seret gambar</strong> ke sini</p>
           <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">PNG, JPG, JPEG, BMP, WEBP &middot; maks 12 MB</p>
         </div>
         <p id="filename" class="hidden text-xs font-mono text-clinic-600 dark:text-clinic-400 mt-1"></p>
@@ -62,7 +62,7 @@
 
   <p class="text-xs text-slate-400 dark:text-slate-500 mt-4 flex items-start gap-2">
     <svg class="w-3.5 h-3.5 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    Saat ini mesin AI berjalan dalam mode demo (mock). Hasil akan menjadi prediksi nyata setelah model di-aktifkan.
+    Analisis memakai <strong>ensemble 3 model</strong> (DenseNet121 · ResNet50 · InceptionV3) dengan rata-rata probabilitas. Hasil bersifat skrining pendukung, bukan diagnosis final.
   </p>
 </div>
 
@@ -71,19 +71,46 @@
   const preview = document.getElementById('preview');
   const dzText = document.getElementById('dz-text');
   const fname = document.getElementById('filename');
+  const dropzone = document.getElementById('dropzone');
   const form = input.closest('form');
 
-  input.addEventListener('change', () => {
-    const file = input.files[0];
+  // Tampilkan preview gambar yang dipilih
+  function showPreview(file) {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    preview.src = url;
+    if (!file.type.startsWith('image/')) { alert('File harus berupa gambar.'); return; }
+    preview.src = URL.createObjectURL(file);
     preview.classList.remove('hidden');
     dzText.classList.add('hidden');
     fname.textContent = file.name;
     fname.classList.remove('hidden');
+  }
+
+  // 1) Pilih lewat klik (input file)
+  input.addEventListener('change', () => showPreview(input.files[0]));
+
+  // 2) Drag-and-drop ke dropzone
+  const HL = ['border-clinic-500', 'bg-clinic-50/60', 'dark:bg-clinic-950/30'];
+  ['dragenter', 'dragover'].forEach(ev =>
+    dropzone.addEventListener(ev, e => {
+      e.preventDefault();
+      dropzone.classList.add(...HL);
+    })
+  );
+  ['dragleave', 'dragend', 'drop'].forEach(ev =>
+    dropzone.addEventListener(ev, e => {
+      e.preventDefault();
+      dropzone.classList.remove(...HL);
+    })
+  );
+  dropzone.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    if (files && files.length) {
+      input.files = files;        // masukkan ke input agar ikut ter-submit
+      showPreview(files[0]);
+    }
   });
 
+  // Loading state saat submit
   form.addEventListener('submit', () => {
     document.getElementById('submitBtn').disabled = true;
     const l = document.getElementById('loading');
