@@ -305,13 +305,13 @@ def _save_overlay(orig_pil, heat, out_abs, cv2, np, disp=420, thr=0.4):
     Tempel heatmap (colormap JET) di atas X-ray asli, simpan PNG.
 
     Perbaikan tampilan (tetap jujur, tanpa memalsukan):
-    - Jaga aspect ratio (gambar di-letterbox dalam kotak, tidak ditarik) -> heatmap
-      sejajar dengan anatomi.
+    - Jaga aspect ratio asli (gambar TIDAK ditarik & TIDAK diberi bar hitam) ->
+      tampil penuh seperti X-ray asli, heatmap sejajar dengan anatomi.
     - Hanya warnai aktivasi KUAT (>= thr dari max). Area lemah dibiarkan polos
       sehingga heatmap terkonsentrasi di titik penting (umumnya area dada).
     """
     img = orig_pil.copy()
-    img.thumbnail((disp, disp), Image.LANCZOS)
+    img.thumbnail((disp, disp), Image.LANCZOS)  # batasi ukuran, rasio terjaga
     w, h = img.size
     base = np.array(img)[:, :, ::-1]  # RGB -> BGR utk cv2
 
@@ -324,8 +324,4 @@ def _save_overlay(orig_pil, heat, out_abs, cv2, np, disp=420, thr=0.4):
     mask = hm >= thr
     overlay[mask] = blended[mask]
 
-    # letterbox ke kanvas kotak agar ukuran tampil konsisten
-    canvas = np.zeros((disp, disp, 3), dtype=np.uint8)
-    y0, x0 = (disp - h) // 2, (disp - w) // 2
-    canvas[y0:y0 + h, x0:x0 + w] = overlay
-    cv2.imwrite(out_abs, canvas)
+    cv2.imwrite(out_abs, overlay)  # simpan apa adanya (rasio asli, tanpa bar)
