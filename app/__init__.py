@@ -1,9 +1,14 @@
 """
-Entry point aplikasi — PneumoScan (deteksi pneumonia, alat bantu skrining).
+Application factory PneumoScan (deteksi pneumonia, alat bantu skrining).
 
-Jalankan:
-    python app.py
-Lalu buka: http://127.0.0.1:5000
+Struktur:
+    app/__init__.py     -> create_app() + route utama (index, dashboard)
+    app/extensions.py   -> db, login_manager
+    app/models.py       -> skema database
+    app/routes/         -> blueprint halaman (auth, patients, scan)
+    app/services/       -> logika non-web (ai_engine, report)
+
+Dijalankan lewat run.py di root proyek:  python run.py
 """
 import os
 from datetime import date
@@ -12,8 +17,8 @@ from flask import Flask, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from sqlalchemy import func
 
-from extensions import db, login_manager
-from models import User, Patient, Scan  # diperlukan untuk user_loader, metrik & create_all
+from app.extensions import db, login_manager
+from app.models import User, Patient, Scan  # untuk user_loader, metrik & create_all
 
 
 def create_app() -> Flask:
@@ -34,9 +39,9 @@ def create_app() -> Flask:
     login_manager.login_message_category = "error"
 
     # --- Blueprint ---
-    from auth import auth_bp
-    from patients import patients_bp
-    from scan import scan_bp
+    from app.routes.auth import auth_bp
+    from app.routes.patients import patients_bp
+    from app.routes.scan import scan_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(patients_bp)
     app.register_blueprint(scan_bp)
@@ -111,11 +116,3 @@ def create_app() -> Flask:
 @login_manager.user_loader
 def load_user(user_id: str):
     return db.session.get(User, int(user_id))
-
-
-app = create_app()
-
-
-if __name__ == "__main__":
-    # debug=True hanya untuk pengembangan lokal
-    app.run(debug=True, host="127.0.0.1", port=5000)

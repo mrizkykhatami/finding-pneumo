@@ -5,8 +5,8 @@ Memakai session-cookie via Flask-Login (sesuai spesifikasi).
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 
-from extensions import db
-from models import User
+from app.extensions import db
+from app.models import User
 
 auth_bp = Blueprint("auth", __name__)
 
