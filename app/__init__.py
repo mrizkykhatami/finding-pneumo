@@ -1,5 +1,5 @@
 """
-Application factory PneumoScan (deteksi pneumonia, alat bantu skrining).
+Application factory FindingPneumo (deteksi pneumonia, alat bantu skrining).
 
 Struktur:
     app/__init__.py     -> create_app() + route utama (index, dashboard)

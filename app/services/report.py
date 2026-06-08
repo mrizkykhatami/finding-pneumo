@@ -60,14 +60,14 @@ def build_report_pdf(scan, root_path: str) -> BytesIO:
         buf, pagesize=A4,
         leftMargin=18 * mm, rightMargin=18 * mm,
         topMargin=16 * mm, bottomMargin=16 * mm,
-        title=f"Laporan PneumoScan {scan.patient_id}",
+        title=f"Laporan FindingPneumo {scan.patient_id}",
     )
     story = []
 
     # ── Header ──────────────────────────────────────────────────────────
     header = Table(
         [[
-            Paragraph("PneumoScan", ss["Brand"]),
+            Paragraph("FindingPneumo", ss["Brand"]),
             Paragraph(
                 f"Laporan Skrining Pneumonia (AI)<br/>"
                 f"No. Scan: <b>#{scan.id}</b><br/>"
@@ -198,7 +198,7 @@ def build_report_pdf(scan, root_path: str) -> BytesIO:
 
     story.append(Paragraph(
         "<b>Disclaimer:</b> Laporan ini dihasilkan oleh alat bantu skrining berbasis AI "
-        "(PneumoScan) dan bersifat pendukung. Hasil tidak menggantikan pemeriksaan, "
+        "(FindingPneumo) dan bersifat pendukung. Hasil tidak menggantikan pemeriksaan, "
         "diagnosis, maupun keputusan klinis dokter. Korelasikan dengan kondisi klinis pasien.",
         ss["Small"]))
 
@@ -212,6 +212,6 @@ def _footer(canvas, doc):
     canvas.setFont("Helvetica", 7)
     canvas.setFillColor(_SLATE)
     canvas.drawString(18 * mm, 10 * mm,
-                      f"PneumoScan · Dicetak {datetime.now():%d %b %Y %H:%M}")
+                      f"FindingPneumo · Dicetak {datetime.now():%d %b %Y %H:%M}")
     canvas.drawRightString(A4[0] - 18 * mm, 10 * mm, f"Halaman {doc.page}")
     canvas.restoreState()

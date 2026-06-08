@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Edit' if mode == 'edit' else 'Pasien Baru' }} &middot; PneumoScan{% endblock %}
+{% block title %}{{ 'Edit' if mode == 'edit' else 'Pasien Baru' }} &middot; FindingPneumo{% endblock %}
 
 {% set is_edit = (mode == 'edit') %}
 {% set display_id = patient.id if is_edit else next_id %}

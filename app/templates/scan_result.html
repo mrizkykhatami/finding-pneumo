@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Hasil Scan #{{ scan.id }} &middot; PneumoScan{% endblock %}
+{% block title %}Hasil Scan #{{ scan.id }} &middot; FindingPneumo{% endblock %}
 
 {% set is_pneumonia = (scan.hasil_prediksi or '')|upper == 'PNEUMONIA' %}
 
@@ -45,6 +45,14 @@
     </div>
   </div>
 </div>
+
+<!-- Guardrail: peringatan saat keyakinan model rendah -->
+{% if scan.confidence_score is not none and scan.confidence_score < 0.65 %}
+<div class="mb-6 flex items-start gap-3 text-sm rounded-xl p-4 bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
+  <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+  <span><strong>Keyakinan model relatif rendah (&lt;65%).</strong> Hasil ini kurang meyakinkan — sangat disarankan untuk dikonfirmasi langsung oleh dokter, jangan dijadikan acuan tunggal.</span>
+</div>
+{% endif %}
 
 <!-- Gambar: original + 3 Grad-CAM -->
 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 mb-6">
