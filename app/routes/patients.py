@@ -10,8 +10,8 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required
 from sqlalchemy import func
 
-from extensions import db
-from models import Patient
+from app.extensions import db
+from app.models import Patient
 
 patients_bp = Blueprint("patients", __name__)
 

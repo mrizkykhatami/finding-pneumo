@@ -16,9 +16,9 @@ from flask import (
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
-from extensions import db
-from models import Patient, Scan
-from ai_engine import analyze_scan, MODEL_NAMES
+from app.extensions import db
+from app.models import Patient, Scan
+from app.services.ai_engine import analyze_scan, MODEL_NAMES
 
 scan_bp = Blueprint("scan", __name__)
 
@@ -138,7 +138,7 @@ def report_pdf(scan_id):
     scan = db.session.get(Scan, scan_id)
     if scan is None:
         abort(404)
-    from report import build_report_pdf  # impor lokal agar reportlab hanya dimuat saat perlu
+    from app.services.report import build_report_pdf  # impor lokal agar reportlab hanya dimuat saat perlu
 
     pdf_buffer = build_report_pdf(scan, current_app.root_path)
     filename = f"PneumoScan_{scan.patient_id}_scan{scan.id}.pdf"

@@ -18,7 +18,7 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage,
 )
 
-from ai_engine import MODEL_NAMES
+from app.services.ai_engine import MODEL_NAMES
 
 # Palet selaras dengan UI web (teal klinis).
 _TEAL = colors.HexColor("#0d9488")
