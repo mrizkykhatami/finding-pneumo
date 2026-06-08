@@ -300,11 +300,32 @@ def _grad_cam(model, inp, spec, tf):
     return float(pred[0, 0]), heat.numpy()
 
 
-def _save_overlay(orig_pil, heat, out_abs, cv2, np, disp=420):
-    """Tempel heatmap (colormap JET) di atas X-ray asli, simpan PNG."""
-    base = np.array(orig_pil.resize((disp, disp)))[:, :, ::-1]  # RGB -> BGR utk cv2
-    hm = cv2.resize(heat.astype("float32"), (disp, disp))
-    hm = np.uint8(255 * np.clip(hm, 0, 1))
-    hm_color = cv2.applyColorMap(hm, cv2.COLORMAP_JET)
-    overlay = cv2.addWeighted(base, 0.6, hm_color, 0.4, 0)
-    cv2.imwrite(out_abs, overlay)
+def _save_overlay(orig_pil, heat, out_abs, cv2, np, disp=420, thr=0.4):
+    """
+    Tempel heatmap (colormap JET) di atas X-ray asli, simpan PNG.
+
+    Perbaikan tampilan (tetap jujur, tanpa memalsukan):
+    - Jaga aspect ratio (gambar di-letterbox dalam kotak, tidak ditarik) -> heatmap
+      sejajar dengan anatomi.
+    - Hanya warnai aktivasi KUAT (>= thr dari max). Area lemah dibiarkan polos
+      sehingga heatmap terkonsentrasi di titik penting (umumnya area dada).
+    """
+    img = orig_pil.copy()
+    img.thumbnail((disp, disp), Image.LANCZOS)
+    w, h = img.size
+    base = np.array(img)[:, :, ::-1]  # RGB -> BGR utk cv2
+
+    hm = np.clip(cv2.resize(heat.astype("float32"), (w, h)), 0, 1)
+    hm_color = cv2.applyColorMap(np.uint8(255 * hm), cv2.COLORMAP_JET)
+    blended = cv2.addWeighted(base, 0.6, hm_color, 0.4, 0)
+
+    # warnai hanya di area aktivasi kuat; sisanya tetap X-ray asli
+    overlay = base.copy()
+    mask = hm >= thr
+    overlay[mask] = blended[mask]
+
+    # letterbox ke kanvas kotak agar ukuran tampil konsisten
+    canvas = np.zeros((disp, disp, 3), dtype=np.uint8)
+    y0, x0 = (disp - h) // 2, (disp - w) // 2
+    canvas[y0:y0 + h, x0:x0 + w] = overlay
+    cv2.imwrite(out_abs, canvas)
