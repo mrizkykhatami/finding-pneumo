@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard &middot; PneumoScan{% endblock %}
+
+{% block content %}
+<div class="flex items-end justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+      Selamat datang, {{ current_user.nama }} &middot;
+      <span class="font-mono text-clinic-600 dark:text-clinic-400">{{ current_user.role }}</span>
+    </p>
+  </div>
+  <a href="{{ url_for('patients.list_patients') }}"
+     class="hidden sm:inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-clinic-600 hover:bg-clinic-700 text-white font-medium shadow-sm shadow-clinic-600/30 transition">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+    Kelola Pasien
+  </a>
+</div>
+
+<!-- Kartu metrik (data real) -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  {% set cards = [
+    ('Total Patients', metrics.total_patients, 'Pasien terdaftar'),
+    ('Scans Today', metrics.scans_today, 'Pemindaian hari ini'),
+    ('Pneumonia Rate', metrics.pneumonia_rate, 'Proporsi positif'),
+    ('Reports Generated', metrics.reports_generated, 'Laporan dibuat')
+  ] %}
+  {% for label, value, sub in cards %}
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+    <div class="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ label }}</div>
+    <div class="text-3xl font-mono font-semibold mt-2 text-clinic-600 dark:text-clinic-400">{{ value }}</div>
+    <div class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ sub }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Recent Scans -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+    <h2 class="font-semibold">Recent Scans</h2>
+    <span class="text-xs text-slate-400 dark:text-slate-500">5 terbaru</span>
+  </div>
+
+  {% if recent_scans %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-800">
+          <th class="px-5 py-3 font-medium">Pasien</th>
+          <th class="px-5 py-3 font-medium">Tanggal</th>
+          <th class="px-5 py-3 font-medium">Hasil</th>
+          <th class="px-5 py-3 font-medium">Confidence</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        {% for scan in recent_scans %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer"
+            onclick="window.location='{{ url_for('scan.view_scan', scan_id=scan.id) }}'">
+          <td class="px-5 py-3">
+            <div class="font-medium">{{ scan.patient.nama if scan.patient else '—' }}</div>
+            <div class="font-mono text-xs text-slate-400">{{ scan.patient_id }}</div>
+          </td>
+          <td class="px-5 py-3 text-slate-500 dark:text-slate-400 font-mono text-xs">
+            {{ scan.tanggal.strftime('%d %b %Y, %H:%M') if scan.tanggal else '—' }}
+          </td>
+          <td class="px-5 py-3">
+            {% if scan.hasil_prediksi %}
+              {% if scan.hasil_prediksi|upper == 'PNEUMONIA' %}
+                <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">Pneumonia</span>
+              {% else %}
+                <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300">Normal</span>
+              {% endif %}
+            {% else %}
+              <span class="text-slate-400 text-xs">Belum diproses</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3 font-mono text-xs">
+            {{ '%.1f%%'|format(scan.confidence_score * 100) if scan.confidence_score is not none else '—' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="px-5 py-12 text-center text-sm text-slate-400 dark:text-slate-500">
+    Belum ada scan. Tambahkan pasien lalu mulai <span class="font-mono">New Scan</span> (aktif penuh di Fase 3).
+  </div>
+  {% endif %}
+</div>
+
+<!-- Disclaimer akuntabilitas -->
+<div class="mt-6 flex items-start gap-3 text-xs text-slate-500 dark:text-slate-400 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4">
+  <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+  <span>
+    <strong>Disclaimer:</strong> PneumoScan adalah alat bantu skrining awal berbasis AI.
+    Hasil prediksi tidak menggantikan pemeriksaan, diagnosis, atau keputusan klinis dokter.
+  </span>
+</div>
+{% endblock %}
