@@ -22,8 +22,8 @@ import hashlib
 import os
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-# Ganti ke True setelah model .h5 siap & _predict_real() diisi.
-USE_REAL_MODELS = False
+# True = pakai 3 model .keras asli (ensemble). False = mode MOCK/demo.
+USE_REAL_MODELS = True
 
 # Label tiga arsitektur — urutan ini dipakai konsisten di seluruh aplikasi.
 MODEL_NAMES = ("DenseNet121", "ResNet50", "InceptionV3")
@@ -146,22 +146,165 @@ def _file_digest(path: str) -> str:
 
 
 # ──────────────────────────────────────────────────────────────────────────
-#  IMPLEMENTASI MODEL ASLI — diisi pada tahap integrasi akhir
+#  IMPLEMENTASI MODEL ASLI (ensemble 3 model + Grad-CAM per-arsitektur)
 # ──────────────────────────────────────────────────────────────────────────
+#
+# Spesifikasi diturunkan dari inspeksi langsung tiap file .keras:
+#   DenseNet121 : input 299, preprocessing DI DALAM model -> feed raw 0-255.
+#                 base 'densenet121', conv terakhir 'relu'.
+#   ResNet50    : input 256, ada Lambda 'preprocess_input_layer' DI DALAM model,
+#                 tapi untuk Grad-CAM kita panggil sub-model 'resnet50' yang butuh
+#                 resnet50.preprocess_input. conv terakhir 'conv5_block3_out'.
+#   InceptionV3 : input 299, model flat TANPA preprocessing -> feed /255.0
+#                 (sesuai metadata 'normalization_scale: 1/255.0'). conv 'mixed10'.
+#
+# Urutan _SPECS = urutan MODEL_NAMES (DenseNet, ResNet, Inception).
+_MODELS_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "models", "list_models",
+)
+_SPECS = [
+    {"name": "DenseNet121", "file": os.path.join(_MODELS_DIR, "densenet121", "densenet121.keras"),
+     "size": 299, "prep": "raw",    "base_layer": "densenet121", "conv_layer": "relu"},
+    {"name": "ResNet50",    "file": os.path.join(_MODELS_DIR, "resnet50", "resnet50.keras"),
+     "size": 256, "prep": "resnet", "base_layer": "resnet50",    "conv_layer": "conv5_block3_out"},
+    {"name": "InceptionV3", "file": os.path.join(_MODELS_DIR, "inception", "inception.keras"),
+     "size": 299, "prep": "div255", "base_layer": None,          "conv_layer": "mixed10"},
+]
+
+
 def _predict_real(original_abs_path: str, out_dir_abs: str, basename: str) -> dict:
     """
-    KERANGKA untuk model asli. Saat ini sengaja melempar error supaya tidak
-    terpakai sebelum benar-benar diisi.
+    Inferensi nyata: ensemble 3 model + Grad-CAM per-arsitektur.
 
-    Rencana implementasi (sesuai spesifikasi preprocessing yang sudah ditetapkan):
-      - DenseNet121 : input (?, ?, 3), densenet.preprocess_input, Grad-CAM dari conv terakhir.
-      - ResNet50    : input 256x256,   resnet50.preprocess_input, sub-model 'resnet50' + head.
-      - InceptionV3 : input 299x299,   inception_v3.preprocess_input, Grad-CAM dari 'mixed10'.
-      - Ensemble    : rata-rata confidence 3 model → label final.
+    Strategi memori: model dimuat SATU per satu lalu DILEPAS (peak memori = 1 model,
+    bukan ~420 MB sekaligus) -> menghindari OOM/segfault di RAM terbatas. Konsekuensi:
+    tiap scan agak lebih lama karena model di-load ulang, tapi jauh lebih stabil.
 
-    Catatan: ukuran input final DenseNet & Inception masih perlu dikonfirmasi
-    dari model.input_shape (lihat catatan di chat).
+    Tahan-banting: bila satu model gagal, ensemble tetap jalan dari model lainnya.
     """
-    raise NotImplementedError(
-        "Model asli belum diaktifkan. Isi _predict_real() lalu set USE_REAL_MODELS=True."
-    )
+    import gc
+    import traceback
+    import numpy as np
+    import cv2
+    import tensorflow as tf
+
+    tf.get_logger().setLevel("ERROR")
+    orig_pil = Image.open(original_abs_path).convert("RGB")
+
+    probs, heatmap_paths = [], []
+    for spec in _SPECS:
+        name = spec["name"]
+        out_name = f"{basename}_{name.lower()}.png"
+        model = None
+        try:
+            model = _load_keras(spec["file"], name, tf)
+            inp = _prep_input(orig_pil, spec["size"], spec["prep"], np, tf)
+            prob, heat = _grad_cam(model, inp, spec, tf)
+            probs.append(prob)
+            _save_overlay(orig_pil, heat, os.path.join(out_dir_abs, out_name), cv2, np)
+            heatmap_paths.append(f"uploads/{out_name}")
+        except Exception:  # noqa: BLE001 — satu model gagal tidak mematikan yang lain
+            traceback.print_exc()
+            heatmap_paths.append(None)
+        finally:
+            del model
+            tf.keras.backend.clear_session()
+            gc.collect()
+
+    if not probs:
+        raise RuntimeError(
+            "Semua model gagal dimuat. Periksa file di models/list_models/."
+        )
+
+    avg = float(sum(probs) / len(probs))
+    label = "PNEUMONIA" if avg >= 0.5 else "NORMAL"
+    confidence = round(avg if label == "PNEUMONIA" else 1.0 - avg, 4)
+    return {
+        "label": label,
+        "confidence": confidence,
+        "heatmaps": heatmap_paths,
+        "is_mock": False,
+    }
+
+
+def _load_keras(path, name, tf):
+    """Muat model .keras. ResNet butuh patch Lambda 'preprocess_input_layer'."""
+    if name == "ResNet50":
+        from tensorflow.keras.applications.resnet50 import preprocess_input as rp
+        orig_call = tf.keras.layers.Lambda.call
+        orig_shape = tf.keras.layers.Lambda.compute_output_shape
+
+        def patched(self, inputs, *a, **k):
+            if self.name == "preprocess_input_layer":
+                return rp(inputs)
+            return orig_call(self, inputs, *a, **k)
+
+        tf.keras.layers.Lambda.call = patched
+        tf.keras.layers.Lambda.compute_output_shape = lambda self, s: s
+        try:
+            return tf.keras.models.load_model(path, safe_mode=False, compile=False)
+        finally:
+            tf.keras.layers.Lambda.call = orig_call
+            tf.keras.layers.Lambda.compute_output_shape = orig_shape
+    return tf.keras.models.load_model(path, safe_mode=False, compile=False)
+
+
+def _prep_input(orig_pil, size, mode, np, tf):
+    arr = np.array(orig_pil.resize((size, size)), dtype="float32")[None, ...]  # (1,H,W,3)
+    if mode == "div255":
+        arr = arr / 255.0
+    elif mode == "resnet":
+        from tensorflow.keras.applications.resnet50 import preprocess_input
+        arr = preprocess_input(arr)
+    # 'raw' -> biarkan 0-255 (preprocessing sudah di dalam model)
+    return tf.convert_to_tensor(arr)
+
+
+def _grad_cam(model, inp, spec, tf):
+    """Return (prob_pneumonia, heatmap_2d ternormalisasi 0..1)."""
+    base_layer, conv_layer = spec["base_layer"], spec["conv_layer"]
+
+    with tf.GradientTape() as tape:
+        if base_layer is None:
+            # Model flat (Inception): grad_model langsung dari input model.
+            grad_model = tf.keras.models.Model(
+                model.inputs, [model.get_layer(conv_layer).output, model.output])
+            conv_out, pred = grad_model(inp, training=False)
+            tape.watch(conv_out)
+        else:
+            # Model bersub-model (DenseNet/ResNet): hitung conv dari dalam base,
+            # lalu rekonstruksi head (layer setelah base) agar tetap 1 graph.
+            base = model.get_layer(base_layer)
+            grad_model = tf.keras.models.Model(
+                base.input, [base.get_layer(conv_layer).output, base.output])
+            conv_out, base_out = grad_model(inp, training=False)
+            tape.watch(conv_out)
+            x, passed = base_out, False
+            for layer in model.layers:
+                if layer.name == base_layer:
+                    passed = True
+                    continue
+                if passed:
+                    x = layer(x, training=False)
+            pred = x
+        loss = pred[:, 0]
+
+    grads = tape.gradient(loss, conv_out)
+    pooled = tf.reduce_mean(grads, axis=(0, 1, 2))
+    heat = tf.reduce_sum(conv_out[0] * pooled, axis=-1)
+    heat = tf.nn.relu(heat)
+    maxv = tf.reduce_max(heat)
+    if maxv > 0:
+        heat = heat / maxv
+    return float(pred[0, 0]), heat.numpy()
+
+
+def _save_overlay(orig_pil, heat, out_abs, cv2, np, disp=420):
+    """Tempel heatmap (colormap JET) di atas X-ray asli, simpan PNG."""
+    base = np.array(orig_pil.resize((disp, disp)))[:, :, ::-1]  # RGB -> BGR utk cv2
+    hm = cv2.resize(heat.astype("float32"), (disp, disp))
+    hm = np.uint8(255 * np.clip(hm, 0, 1))
+    hm_color = cv2.applyColorMap(hm, cv2.COLORMAP_JET)
+    overlay = cv2.addWeighted(base, 0.6, hm_color, 0.4, 0)
+    cv2.imwrite(out_abs, overlay)
