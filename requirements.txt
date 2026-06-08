@@ -8,7 +8,7 @@ Werkzeug==3.0.3
 Pillow>=10.0           # pemrosesan gambar + heatmap (mock & nyata)
 reportlab>=4.0         # generate laporan PDF
 
-# --- Integrasi model AI (Fase 3 - tahap akhir, aktifkan saat .h5 siap) ---
-# tensorflow>=2.15      # loading 3 model .h5 + inferensi
-# opencv-python>=4.8    # overlay Grad-CAM resolusi penuh + bounding box (ResNet)
-# numpy>=1.24
+# --- Integrasi model AI (Fase 3 - AKTIF) ---
+tensorflow>=2.15        # loading 3 model .keras + inferensi
+opencv-python>=4.8      # overlay heatmap Grad-CAM
+numpy>=1.24
