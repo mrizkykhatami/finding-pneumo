@@ -85,6 +85,10 @@
                class="text-sm px-3 py-1.5 rounded-lg transition {{ nav_active if request.endpoint and request.endpoint.startswith('patients.') else nav_idle }}">
               Patients
             </a>
+            <a href="{{ url_for('model_info') }}"
+               class="text-sm px-3 py-1.5 rounded-lg transition {{ nav_active if request.endpoint == 'model_info' else nav_idle }}">
+              Model Info
+            </a>
           </nav>
           <div class="text-right hidden sm:block leading-tight">
             <div class="text-sm font-medium">{{ current_user.nama }}</div>

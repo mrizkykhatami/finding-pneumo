@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Model AI & Ensemble · FindingPneumo{% endblock %}
+
+{% block content %}
+<div class="flex items-end justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight">Model AI & Ensemble</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+      Informasi lengkap arsitektur model, metrik performa, dan cara kerja ensemble.
+    </p>
+  </div>
+  <a href="{{ url_for('dashboard') }}"
+     class="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-clinic-600 hover:bg-clinic-700 text-white font-medium shadow-sm shadow-clinic-600/30 transition">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M15 19l-7-7 7-7"/>
+    </svg>
+    Kembali Dashboard
+  </a>
+</div>
+
+<div class="grid gap-4 lg:grid-cols-[1.4fr_0.9fr] mb-8">
+  <div class="space-y-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
+      <div class="flex items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-xl font-semibold">Ringkasan Ensemble</h2>
+          <p class="mt-2 text-slate-500 dark:text-slate-400 text-sm">
+            Sistem ini memadukan tiga model berbeda untuk memberikan hasil yang lebih stabil dibandingkan satu model tunggal.
+          </p>
+        </div>
+        <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300">
+          3 Model / Ensemble</span>
+      </div>
+      <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ ensemble.summary }}</p>
+      <ul class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+        {% for item in ensemble.details %}
+        <li class="flex gap-3">
+          <span class="mt-1 text-clinic-600 dark:text-clinic-400">•</span>
+          <span>{{ item }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 h-full">
+      <h2 class="text-xl font-semibold mb-3">Mengapa ensemble penting?</h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
+          <div class="text-sm font-semibold mb-2">Reduksi Bias</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Ensemble membantu meminimalkan ketergantungan pada satu arsitektur saja.</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
+          <div class="text-sm font-semibold mb-2">Interpretabilitas</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Heatmap Grad-CAM per model mendukung verifikasi area fokus oleh dokter.</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
+          <div class="text-sm font-semibold mb-2">Kestabilan</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Rata-rata prediksi membuat hasil akhir lebih tahan terhadap fluktuasi model tunggal.</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
+          <div class="text-sm font-semibold mb-2">Toleransi kegagalan</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Jika satu model gagal, dua model lainnya masih dapat menyumbang prediksi.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="space-y-6">
+  {% for model in models %}
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm shadow-slate-200/50 dark:shadow-none">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+      <div>
+        <h3 class="text-xl font-semibold">{{ model.name }}</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ model.description }}</p>
+      </div>
+      <div class="inline-flex items-center rounded-full bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300 px-3 py-1 text-xs font-semibold">
+        Performance metrics</div>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-5">
+      {% for label, value in model.metrics.items() %}
+      <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
+        <div class="text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{{ label }}</div>
+        <div class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">{{ value }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}
