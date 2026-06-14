@@ -56,16 +56,16 @@ def analyze():
     patient_id = request.form.get("patient_id", "").strip()
     patient = db.session.get(Patient, patient_id) if patient_id else None
     if patient is None:
-        flash("Pilih pasien yang valid terlebih dahulu.", "error")
+        flash("Please select a valid patient first.", "error")
         return redirect(url_for("scan.new_scan"))
 
     file = request.files.get("xray")
     if file is None or file.filename == "":
-        flash("Belum ada gambar X-ray yang dipilih.", "error")
+        flash("No X-ray image was selected.", "error")
         return redirect(url_for("scan.new_scan", patient_id=patient_id))
 
     if not _allowed(file.filename):
-        flash("Format tidak didukung. Gunakan PNG / JPG / JPEG / BMP / WEBP.", "error")
+        flash("Unsupported format. Use PNG / JPG / JPEG / BMP / WEBP.", "error")
         return redirect(url_for("scan.new_scan", patient_id=patient_id))
 
     # Simpan file original dengan nama unik.
@@ -79,15 +79,15 @@ def analyze():
     # Validasi ukuran setelah tersimpan (hindari baca seluruh stream di memori).
     if os.path.getsize(original_abs) > MAX_BYTES:
         os.remove(original_abs)
-        flash("Ukuran file melebihi 12 MB.", "error")
+        flash("File size exceeds 12 MB.", "error")
         return redirect(url_for("scan.new_scan", patient_id=patient_id))
 
     # Jalankan analisis AI (ensemble 3 model).
     try:
         result = analyze_scan(original_abs, upload_dir, basename)
     except Exception as exc:  # noqa: BLE001 — tampilkan error apa pun ke dokter dengan ramah
-        current_app.logger.exception("Analisis gagal")
-        flash(f"Analisis gagal: {exc}", "error")
+        current_app.logger.exception("Analysis failed")
+        flash(f"Analysis failed: {exc}", "error")
         return redirect(url_for("scan.new_scan", patient_id=patient_id))
 
     # Simpan record scan.
@@ -104,7 +104,7 @@ def analyze():
     db.session.add(scan)
     db.session.commit()
 
-    flash("Analisis selesai.", "success")
+    flash("Analysis completed.", "success")
     return redirect(url_for("scan.view_scan", scan_id=scan.id))
 
 
@@ -128,7 +128,7 @@ def save_notes(scan_id):
         abort(404)
     scan.doctor_notes = request.form.get("doctor_notes", "").strip() or None
     db.session.commit()
-    flash("Catatan dokter tersimpan.", "success")
+    flash("Doctor notes saved.", "success")
     return redirect(url_for("scan.view_scan", scan_id=scan.id))
 
 

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Model AI & Ensemble · FindingPneumo{% endblock %}
+{% block title %}AI Models & Ensemble · FindingPneumo{% endblock %}
 
 {% block content %}
 <div class="flex items-end justify-between gap-4 mb-6">
   <div>
-    <h1 class="text-2xl font-bold tracking-tight">Model AI & Ensemble</h1>
+    <h1 class="text-2xl font-bold tracking-tight">AI Models & Ensemble</h1>
     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-      Informasi lengkap arsitektur model, metrik performa, dan cara kerja ensemble.
+      Complete model architecture details, performance metrics, and ensemble workflow.
     </p>
   </div>
   <a href="{{ url_for('dashboard') }}"
@@ -14,7 +14,7 @@
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M15 19l-7-7 7-7"/>
     </svg>
-    Kembali Dashboard
+    Back to Dashboard
   </a>
 </div>
 
@@ -23,13 +23,13 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
       <div class="flex items-center justify-between gap-4 mb-4">
         <div>
-          <h2 class="text-xl font-semibold">Ringkasan Ensemble</h2>
+          <h2 class="text-xl font-semibold">Ensemble Summary</h2>
           <p class="mt-2 text-slate-500 dark:text-slate-400 text-sm">
-            Sistem ini memadukan tiga model berbeda untuk memberikan hasil yang lebih stabil dibandingkan satu model tunggal.
+            This system combines three different models to deliver more stable predictions than a single model.
           </p>
         </div>
         <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300">
-          3 Model / Ensemble</span>
+          3-Model Ensemble</span>
       </div>
       <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ ensemble.summary }}</p>
       <ul class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
@@ -45,23 +45,23 @@
 
   <div class="space-y-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 h-full">
-      <h2 class="text-xl font-semibold mb-3">Mengapa ensemble penting?</h2>
+      <h2 class="text-xl font-semibold mb-3">Why ensemble matters?</h2>
       <div class="grid gap-3 sm:grid-cols-2">
         <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
-          <div class="text-sm font-semibold mb-2">Reduksi Bias</div>
-          <p class="text-sm text-slate-600 dark:text-slate-300">Ensemble membantu meminimalkan ketergantungan pada satu arsitektur saja.</p>
+          <div class="text-sm font-semibold mb-2">Bias Reduction</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">The ensemble reduces dependence on a single architecture.</p>
         </div>
         <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
-          <div class="text-sm font-semibold mb-2">Interpretabilitas</div>
-          <p class="text-sm text-slate-600 dark:text-slate-300">Heatmap Grad-CAM per model mendukung verifikasi area fokus oleh dokter.</p>
+          <div class="text-sm font-semibold mb-2">Interpretability</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Per-model Grad-CAM heatmaps help clinicians verify focus areas.</p>
         </div>
         <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
-          <div class="text-sm font-semibold mb-2">Kestabilan</div>
-          <p class="text-sm text-slate-600 dark:text-slate-300">Rata-rata prediksi membuat hasil akhir lebih tahan terhadap fluktuasi model tunggal.</p>
+          <div class="text-sm font-semibold mb-2">Stability</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Averaging predictions makes the final result more robust.</p>
         </div>
         <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/60 p-4">
-          <div class="text-sm font-semibold mb-2">Toleransi kegagalan</div>
-          <p class="text-sm text-slate-600 dark:text-slate-300">Jika satu model gagal, dua model lainnya masih dapat menyumbang prediksi.</p>
+          <div class="text-sm font-semibold mb-2">Failure tolerance</div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">If one model fails, the others can still contribute.</p>
         </div>
       </div>
     </div>
