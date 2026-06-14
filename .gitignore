@@ -16,7 +16,6 @@ instance/
 # Model files (terlalu besar untuk GitHub — bagikan via Google Drive)
 *.h5
 *.keras
-models/
 
 # Uploaded X-rays & generated heatmaps
 app/static/uploads/*

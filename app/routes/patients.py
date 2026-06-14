@@ -53,14 +53,14 @@ def _read_form():
 
 
 def _validate(data) -> str | None:
-    """Kembalikan pesan error pertama yang ditemukan, atau None jika valid."""
+    """Return the first validation error message found, or None if valid."""
     if not data["nama"]:
-        return "Nama pasien wajib diisi."
+        return "Patient name is required."
     if data["umur"]:
         if not data["umur"].isdigit() or not (0 <= int(data["umur"]) <= 150):
-            return "Umur harus berupa angka yang masuk akal (0–150)."
+            return "Age must be a valid number between 0 and 150."
     if data["jenis_kelamin"] and data["jenis_kelamin"] not in VALID_GENDER:
-        return "Jenis kelamin tidak valid."
+        return "Invalid gender selection."
     return None
 
 
@@ -106,7 +106,7 @@ def create_patient():
         )
         db.session.add(patient)
         db.session.commit()
-        flash(f"Pasien {patient.id} — {patient.nama} berhasil ditambahkan.", "success")
+        flash(f"Patient {patient.id} — {patient.nama} was added successfully.", "success")
         return redirect(url_for("patients.list_patients"))
 
     # GET
@@ -120,7 +120,7 @@ def create_patient():
 def edit_patient(patient_id):
     patient = db.session.get(Patient, patient_id)
     if patient is None:
-        flash("Pasien tidak ditemukan.", "error")
+        flash("Patient not found.", "error")
         return redirect(url_for("patients.list_patients"))
 
     if request.method == "POST":
@@ -139,7 +139,7 @@ def edit_patient(patient_id):
         patient.gejala = data["gejala"] or None
         patient.riwayat_medis = data["riwayat_medis"] or None
         db.session.commit()
-        flash(f"Data pasien {patient.id} diperbarui.", "success")
+        flash(f"Patient {patient.id} information updated.", "success")
         return redirect(url_for("patients.list_patients"))
 
     # GET
@@ -151,7 +151,7 @@ def edit_patient(patient_id):
 def delete_patient(patient_id):
     patient = db.session.get(Patient, patient_id)
     if patient is None:
-        flash("Pasien tidak ditemukan.", "error")
+        flash("Patient not found.", "error")
         return redirect(url_for("patients.list_patients"))
 
     # Hapus scan terkait dulu agar tidak melanggar foreign key
@@ -159,5 +159,5 @@ def delete_patient(patient_id):
         db.session.delete(scan)
     db.session.delete(patient)
     db.session.commit()
-    flash(f"Pasien {patient_id} beserta data scan-nya telah dihapus.", "success")
+    flash(f"Patient {patient_id} and its scan data have been deleted.", "success")
     return redirect(url_for("patients.list_patients"))

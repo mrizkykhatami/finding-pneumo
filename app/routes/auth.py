@@ -27,20 +27,20 @@ def register():
 
         # Validasi sederhana
         if not nama or not email or not password:
-            flash("Semua field wajib diisi.", "error")
+            flash("All fields are required.", "error")
             return render_template("register.html")
 
         if role not in VALID_ROLES:
-            flash("Role tidak valid.", "error")
+            flash("Invalid role.", "error")
             return render_template("register.html")
 
         if len(password) < 6:
-            flash("Password minimal 6 karakter.", "error")
+            flash("Password must be at least 6 characters.", "error")
             return render_template("register.html")
 
-        # Cek email sudah terdaftar
+        # Check if email is already registered
         if User.query.filter_by(email=email).first():
-            flash("Email sudah terdaftar. Silakan login.", "error")
+            flash("Email is already registered. Please login.", "error")
             return render_template("register.html")
 
         # Simpan user baru (password di-hash di dalam set_password)
@@ -49,7 +49,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash("Registrasi berhasil. Silakan login.", "success")
+        flash("Registration successful. Please login.", "success")
         return redirect(url_for("auth.login"))
 
     return render_template("register.html")
@@ -66,13 +66,13 @@ def login():
 
         user = User.query.filter_by(email=email).first()
 
-        # Pesan error sengaja generik (tidak membocorkan email mana yang ada/tidak)
+        # Error message is intentionally generic (do not reveal whether the email exists)
         if user is None or not user.check_password(password):
-            flash("Email atau password salah.", "error")
+            flash("Email or password is incorrect.", "error")
             return render_template("login.html")
 
         login_user(user)
-        flash(f"Selamat datang, {user.nama}.", "success")
+        flash(f"Welcome, {user.nama}.", "success")
 
         # Redirect ke halaman tujuan jika ada (?next=...), kalau tidak ke dashboard
         next_page = request.args.get("next")
@@ -85,5 +85,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("Anda telah logout.", "success")
+    flash("You have been logged out.", "success")
     return redirect(url_for("auth.login"))

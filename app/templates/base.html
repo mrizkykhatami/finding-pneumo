@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="">
+<html lang="en" class="">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,7 @@
         }
       }
     }
-    // Aplikasi dark-only: selalu pasang kelas 'dark' (light mode dihapus).
+    // Dark-only app: always apply the 'dark' class (light mode removed).
     document.documentElement.classList.add('dark');
   </script>
 
@@ -80,6 +80,10 @@
                class="text-sm px-3 py-1.5 rounded-lg transition {{ nav_active if request.endpoint and request.endpoint.startswith('patients.') else nav_idle }}">
               Patients
             </a>
+            <a href="{{ url_for('model_info') }}"
+               class="text-sm px-3 py-1.5 rounded-lg transition {{ nav_active if request.endpoint == 'model_info' else nav_idle }}">
+              Model Info
+            </a>
           </nav>
           <div class="text-right hidden sm:block leading-tight">
             <div class="text-sm font-medium">{{ current_user.nama }}</div>
@@ -116,7 +120,7 @@
   </main>
 
   <footer class="max-w-6xl mx-auto px-5 py-6 text-center text-xs text-slate-400 dark:text-slate-600">
-    FindingPneumo &middot; Alat bantu skrining berbasis AI &mdash; bukan pengganti diagnosis dokter.
+    FindingPneumo · AI screening assistant — not a replacement for clinical diagnosis.
   </footer>
 
   {% block scripts %}{% endblock %}
