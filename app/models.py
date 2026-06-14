@@ -75,6 +75,7 @@ class Scan(db.Model):
     file_path_heatmap_1 = db.Column(db.String(255), nullable=True)  # DenseNet121
     file_path_heatmap_2 = db.Column(db.String(255), nullable=True)  # ResNet50
     file_path_heatmap_3 = db.Column(db.String(255), nullable=True)  # InceptionV3
+    file_path_heatmap_consensus = db.Column(db.String(255), nullable=True)  # irisan 3 model
 
     doctor_notes = db.Column(db.Text, nullable=True)
 

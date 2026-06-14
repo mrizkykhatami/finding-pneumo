@@ -146,10 +146,10 @@ def build_report_pdf(scan, root_path: str) -> BytesIO:
               result_tbl, Spacer(1, 6)]
 
     # ── Grid gambar: original + 3 Grad-CAM ──────────────────────────────
-    def _img_cell(rel_path, caption):
+    def _img_cell(rel_path, caption, size_mm=32):
         abs_p = _abs(root_path, rel_path)
         if abs_p:
-            img = RLImage(abs_p, width=40 * mm, height=40 * mm)
+            img = RLImage(abs_p, width=size_mm * mm, height=size_mm * mm)
         else:
             img = Paragraph("(gambar tidak tersedia)", ss["Caption"])
         return [img, Paragraph(caption, ss["Caption"])]
@@ -160,17 +160,25 @@ def build_report_pdf(scan, root_path: str) -> BytesIO:
         _img_cell(scan.file_path_heatmap_2, f"Grad-CAM · {MODEL_NAMES[1]}"),
         _img_cell(scan.file_path_heatmap_3, f"Grad-CAM · {MODEL_NAMES[2]}"),
     ]
-    # 4 kolom dalam 1 baris (gambar di atas, caption di bawah → 2 baris tabel).
+    # Konsensus hanya relevan saat PNEUMONIA (lihat scan_result.html) -> sel ke-5
+    # ditambah hanya untuk kasus positif yang punya gambar konsensus.
+    show_consensus = is_pneumonia and scan.file_path_heatmap_consensus
+    if show_consensus:
+        cells.append(_img_cell(scan.file_path_heatmap_consensus, "Konsensus 3 Model"))
+
+    # gambar di atas, caption di bawah → 2 baris tabel; lebar kolom mengikuti jumlah sel.
+    n = len(cells)
     img_row = [c[0] for c in cells]
     cap_row = [c[1] for c in cells]
-    grid = Table([img_row, cap_row], colWidths=[43 * mm] * 4)
+    grid = Table([img_row, cap_row], colWidths=[(174 / n) * mm] * n)
     grid.setStyle(TableStyle([
         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("TOPPADDING", (0, 0), (-1, -1), 3),
         ("BOTTOMPADDING", (0, 1), (-1, 1), 6),
     ]))
-    story += [Paragraph("Peta Aktivasi (Grad-CAM)", ss["H2"]), grid, Spacer(1, 4)]
+    heading = "Peta Aktivasi (Grad-CAM) & Konsensus" if show_consensus else "Peta Aktivasi (Grad-CAM)"
+    story += [Paragraph(heading, ss["H2"]), grid, Spacer(1, 4)]
 
     # ── Catatan dokter ──────────────────────────────────────────────────
     notes = (scan.doctor_notes or "").strip() or "—"

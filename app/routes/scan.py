@@ -100,6 +100,7 @@ def analyze():
         file_path_heatmap_1=result["heatmaps"][0],
         file_path_heatmap_2=result["heatmaps"][1],
         file_path_heatmap_3=result["heatmaps"][2],
+        file_path_heatmap_consensus=result.get("consensus"),
     )
     db.session.add(scan)
     db.session.commit()

@@ -79,6 +79,31 @@
   </div>
 </div>
 
+<!-- Konsensus 3 model: irisan aktivasi. Hanya relevan saat PNEUMONIA -->
+<!-- (menjawab "di mana bukti pneumonia terkuat?"). Saat NORMAL disembunyikan -->
+<!-- agar tidak membingungkan; heatmap per-model di atas tetap jadi alat eksplorasi. -->
+{% if scan.file_path_heatmap_consensus and is_pneumonia %}
+<div class="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900 rounded-2xl p-5 mb-6">
+  <div class="flex items-start gap-2 mb-1">
+    <h2 class="font-semibold">Konsensus 3 Model</h2>
+    <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300 font-medium mt-0.5">Irisan</span>
+  </div>
+  <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+    Titik yang <strong>disepakati ketiga model</strong> — indikasi terkuat & paling kredibel.
+    Area yang hanya menyala di satu model (mis. di luar paru) otomatis tersaring.
+  </p>
+  <figure class="text-center mx-auto max-w-md">
+    <div class="rounded-xl overflow-hidden border border-rose-200 dark:border-rose-800 bg-slate-950">
+      <img src="{{ url_for('static', filename=scan.file_path_heatmap_consensus) }}" class="w-full aspect-square object-contain" alt="Konsensus 3 Model">
+    </div>
+    <figcaption class="text-xs text-slate-400 dark:text-slate-500 mt-3 max-w-md mx-auto">
+      Catatan: heatmap menunjukkan <em>fokus perhatian model</em>, bukan diagnosis.
+      Aktivasi di luar area paru dapat diabaikan. Tetap perlu konfirmasi klinis dokter.
+    </figcaption>
+  </figure>
+</div>
+{% endif %}
+
 <!-- Catatan dokter -->
 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
   <h2 class="font-semibold mb-3">Catatan & Interpretasi Dokter</h2>

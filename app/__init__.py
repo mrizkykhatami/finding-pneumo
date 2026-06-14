@@ -109,8 +109,29 @@ def create_app() -> Flask:
     # --- Buat tabel DB saat pertama kali jalan ---
     with app.app_context():
         db.create_all()
+        _ensure_consensus_column()
 
     return app
+
+
+def _ensure_consensus_column() -> None:
+    """
+    Migrasi ringan & idempotent: tambahkan kolom 'file_path_heatmap_consensus'
+    ke tabel scans bila belum ada. db.create_all() tidak meng-ALTER tabel SQLite
+    yang sudah terlanjur dibuat, jadi DB lama perlu kolom ini ditambah manual.
+    """
+    from sqlalchemy import text
+
+    try:
+        cols = db.session.execute(text("PRAGMA table_info(scans)")).fetchall()
+        names = {row[1] for row in cols}  # row[1] = nama kolom
+        if "file_path_heatmap_consensus" not in names:
+            db.session.execute(
+                text("ALTER TABLE scans ADD COLUMN file_path_heatmap_consensus VARCHAR(255)")
+            )
+            db.session.commit()
+    except Exception:  # noqa: BLE001 — DB fresh (kolom sudah ada) atau non-SQLite: aman diabaikan
+        db.session.rollback()
 
 
 @login_manager.user_loader
