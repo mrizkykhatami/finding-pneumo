@@ -1,25 +1,23 @@
-# 🫁 FindingPneumo
+# FindingPneumo
 
-Aplikasi web lokal untuk **skrining pneumonia dari citra X-ray dada** menggunakan
-**ensemble 3 model deep learning** (DenseNet121 · ResNet50 · InceptionV3) dengan
-visualisasi **Grad-CAM** dan laporan **PDF**.
+Aplikasi web untuk **skrining pneumonia dari citra X-ray dada** menggunakan **ensemble 3 model deep learning** (DenseNet121 · ResNet50 · InceptionV3) dengan visualisasi **Grad-CAM** dan laporan **PDF**.
 
-> ⚠️ **Disclaimer medis.** FindingPneumo adalah **alat bantu skrining berbasis AI**,
+> **Disclaimer medis.** FindingPneumo adalah **alat bantu skrining berbasis AI**,
 > bukan alat diagnosis. Hasil prediksi tidak menggantikan pemeriksaan, diagnosis,
 > maupun keputusan klinis dokter. Selalu korelasikan dengan kondisi klinis pasien.
 
 ---
 
-## ✨ Fitur
+## Fitur
 
-- 🔐 **Autentikasi dokter** (registrasi/login, password ter-hash, role Radiolog / Dokter Umum)
-- 🧑‍⚕️ **Manajemen pasien** — CRUD + pencarian + ID otomatis `PNM-XXX`
-- 📊 **Dashboard** — metrik real (total pasien, scan hari ini, pneumonia rate) + scan terbaru
-- 🤖 **Analisis AI** — upload X-ray → **ensemble 3 model** → label + confidence
-- 🔥 **Grad-CAM** — 3 heatmap (satu per arsitektur) menunjukkan area yang diperhatikan model
-- 📝 **Catatan dokter** + **laporan PDF** resmi siap unduh
+- **Autentikasi dokter:** registrasi/login, password ter-hash, role Radiolog / Dokter Umum
+- **Manajemen pasien:** CRUD + pencarian + ID otomatis `PNM-XXX`
+- **Dashboard:** total pasien, scan hari ini, pneumonia rate, report generated
+- **Analisis AI:** upload citra X-ray → ensemble 3 model → label + confidence 
+- **Grad-CAM:** 4 heatmap (satu per arsitektur model + konsensus/irisan) menunjukkan area yang diperhatikan model
+- **Catatan dokter** + **laporan PDF** siap unduh
 
-## 🛠️ Teknologi
+## Teknologi
 
 | Lapisan | Teknologi |
 |---|---|
@@ -29,10 +27,10 @@ visualisasi **Grad-CAM** dan laporan **PDF**.
 | Laporan | ReportLab |
 | Frontend | HTML + Tailwind CSS (CDN) + Vanilla JS |
 
-## 📁 Struktur proyek
+## Struktur proyek
 
 ```
-pneumonia-detector/
+finding-pneumo/
 ├── run.py                  # entry point  -> python run.py
 ├── requirements.txt
 ├── README.md
@@ -47,11 +45,11 @@ pneumonia-detector/
     └── static/uploads/     # X-ray & heatmap hasil (TIDAK di-repo)
 ```
 
-## 🚀 Cara menjalankan (lokal)
+## Cara menjalankan (lokal)
 
 ```bash
 # 1. Masuk folder & install dependency
-cd pneumonia-detector
+cd finding-pneumo
 pip install -r requirements.txt
 
 # 2. Taruh 3 file model (lihat bagian Model di bawah) ke:
@@ -64,35 +62,37 @@ python run.py
 ```
 Buka **http://127.0.0.1:5000** → Registrasi dokter → Login → Patients → New Scan.
 
-> Scan pertama butuh ~10–30 detik karena memuat ketiga model. Itu normal.
+> Scan pertama mungkin butuh waktu lebih lama karena memuat ketiga model.
 
-## 🧠 Model
+## Model
 
-File model `.keras` (~420 MB total) **tidak disertakan di repository** karena
-melebihi batas ukuran GitHub. Bagikan secara terpisah (Google Drive / dsb) dan
-letakkan di `models/list_models/<arsitektur>/`.
+File model `.keras` (~420 MB total) **tidak disertakan di repository** karena melebihi batas ukuran GitHub. Bagikan secara terpisah (Google Drive / dsb) dan letakkan di `models/list_models/<arsitektur>/`.
 
 Preprocessing per arsitektur (sudah ditangani otomatis di `app/services/ai_engine.py`):
-- **DenseNet121** — input 299×299, raw 0–255 (preprocessing di dalam model), Grad-CAM `relu`
-- **ResNet50** — input 256×256, `resnet50.preprocess_input`, Grad-CAM `conv5_block3_out`
-- **InceptionV3** — input 299×299, normalisasi `/255`, Grad-CAM `mixed10`
+- **DenseNet121:** input 299×299, raw 0-255 (preprocessing di dalam model), Grad-CAM `relu`
+- **ResNet50:** input 256×256, `resnet50.preprocess_input`, Grad-CAM `conv5_block3_out`
+- **InceptionV3:** input 299×299, normalisasi `/255`, Grad-CAM `mixed10`
 
 Keputusan akhir = **rata-rata probabilitas** ketiga model (soft voting), ambang **0.5**.
 
-## 🛡️ Guardrails (keamanan & keandalan)
+## Guardrails (Keamanan & Keandalan)
 
 - Semua halaman sensitif dilindungi **login** (`@login_required`).
 - Upload divalidasi: **tipe** (PNG/JPG/JPEG/BMP/WEBP) & **ukuran** (maks 12 MB).
-- **Tahan-banting**: bila satu model gagal dimuat, ensemble tetap berjalan dari sisanya.
+- Bila satu model gagal dimuat, ensemble tetap berjalan dari sisanya.
 - Model dimuat **satu per satu lalu dilepas** → menghindari kehabisan memori.
 - **Peringatan confidence rendah** ditampilkan saat keyakinan model < 65%.
 - **Disclaimer medis** tampil di UI dan pada setiap laporan PDF.
 - `SECRET_KEY` & mode `debug` dapat diatur lewat environment variable.
 
-## 👥 Tim
+## Tim
 
-Proyek Akhir — Artificial Intelligence (Semester 4).
+Proyek Akhir - Artificial Intelligence (Semester 4).
+| NPM | Nama |
+| --- | --- |
+| 140810240029 | Hamzah Abdillah Gabriela |
+| 140810240061 | Renadi Wilantara |
+| 140810240073 | Muhammad Rizky Khatami |
 
 ---
 
-*Catatan: aplikasi ditujukan untuk lingkungan lokal/edukasi, bukan deployment produksi.*
