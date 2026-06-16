@@ -21,14 +21,14 @@
 <div class="grid gap-4 lg:grid-cols-[1.4fr_0.9fr] mb-8">
   <div class="space-y-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6">
-      <div class="flex items-center justify-between gap-4 mb-4">
-        <div>
+      <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+        <div class="min-w-0">
           <h2 class="text-xl font-semibold">Ensemble Summary</h2>
           <p class="mt-2 text-slate-500 dark:text-slate-400 text-sm">
             This system combines three different models to deliver more stable predictions than a single model.
           </p>
         </div>
-        <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300">
+        <span class="inline-flex items-center shrink-0 whitespace-nowrap rounded-full bg-clinic-700 text-white dark:bg-clinic-500 dark:text-white px-3 py-1 text-xs font-semibold mt-1 sm:mt-0">
           3-Model Ensemble</span>
       </div>
       <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ ensemble.summary }}</p>
@@ -71,12 +71,12 @@
 <section class="space-y-6">
   {% for model in models %}
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm shadow-slate-200/50 dark:shadow-none">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-      <div>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+      <div class="min-w-0">
         <h3 class="text-xl font-semibold">{{ model.name }}</h3>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ model.description }}</p>
       </div>
-      <div class="inline-flex items-center rounded-full bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300 px-3 py-1 text-xs font-semibold">
+      <div class="inline-flex shrink-0 whitespace-nowrap items-center rounded-full bg-clinic-700 text-white dark:bg-clinic-500 dark:text-white px-3 py-1 text-xs font-semibold">
         Performance metrics</div>
     </div>
 

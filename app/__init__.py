@@ -136,16 +136,16 @@ def create_app() -> Flask:
 
         descriptions = {
             "ResNet50": (
-                "Arsitektur ResNet50 menggunakan residual blocks untuk mengurangi degradasi gradien, "
-                "memberi performa tinggi pada tekstur kompleks dan variasi kontras pada X-ray."
+                "ResNet50 architecture uses residual blocks to reduce gradient degradation, "
+                "delivering strong performance on complex textures and contrast variations in X-rays."
             ),
             "DenseNet121": (
-                "DenseNet121 menghubungkan setiap layer ke semua layer sebelumnya untuk memaksimalkan "
-                "aliran fitur dan membantu menangkap detail halus pada area paru-paru."
+                "DenseNet121 connects each layer to all previous layers to maximize "
+                "feature flow and help capture fine details within the lung region."
             ),
             "InceptionV3": (
-                "InceptionV3 menggunakan blok multi-konvolusi dengan ukuran kernel beragam, cocok untuk "
-                "mendeteksi pola pneumonia di berbagai skala dan intensitas bayangan."
+                "InceptionV3 uses multi-convolution blocks with varied kernel sizes, making it "
+                "well-suited for detecting pneumonia patterns across different scales and shadow intensities."
             ),
         }
 
@@ -159,18 +159,18 @@ def create_app() -> Flask:
         ]
 
         ensemble = {
-            "title": "Ensemble 3 Model",
+            "title": "3-Model Ensemble",
             "summary": (
-                "FindingPneumo mengambil rata-rata probabilitas keluaran ketiga model untuk membuat "
-                "keputusan akhir. Setiap model menghasilkan prediksi serta heatmap Grad-CAM, sehingga "
-                "kombinasi tiga model meningkatkan stabilitas dan menjelaskan area fokus. "
-                "Jika satu model gagal, sistem masih dapat menghasilkan prediksi dari model lainnya."
+                "FindingPneumo averages the output probabilities of the three models to make "
+                "the final decision. Each model also produces a prediction and Grad-CAM heatmap, so "
+                "combining three models improves stability and highlights the focus areas. "
+                "If one model fails, the system can still generate a prediction from the others."
             ),
             "details": [
-                "Prediksi akhir ditentukan dari rata-rata probabilitas pneumonia ketiga model.",
-                "Confidence akhir dihitung dari kekuatan mayoritas model.",
-                "Heatmap per-model digunakan untuk membantu dokter memverifikasi area yang dianggap penting.",
-                "Menggunakan ensemble mengurangi risiko hasil bias dari satu model tunggal.",
+                "The final prediction is based on the averaged pneumonia probabilities from all three models.",
+                "Final confidence is computed from the majority strength of the models.",
+                "Per-model heatmaps are used to help clinicians verify the areas that were considered important.",
+                "Using an ensemble reduces the risk of bias from any single model.",
             ],
         }
 

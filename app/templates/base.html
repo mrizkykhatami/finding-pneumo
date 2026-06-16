@@ -70,7 +70,7 @@
       <div class="flex items-center gap-3">
         {% if current_user.is_authenticated %}
           <nav class="hidden md:flex items-center gap-1 mr-2">
-            {% set nav_active = 'bg-clinic-50 text-clinic-700 dark:bg-clinic-950/40 dark:text-clinic-300' %}
+            {% set nav_active = 'bg-clinic-700 text-white dark:bg-clinic-500 dark:text-white' %}
             {% set nav_idle = 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' %}
             <a href="{{ url_for('dashboard') }}"
                class="text-sm px-3 py-1.5 rounded-lg transition {{ nav_active if request.endpoint == 'dashboard' else nav_idle }}">
@@ -106,7 +106,7 @@
           {% if category == 'error' %}
             bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900
           {% else %}
-            bg-clinic-50 text-clinic-700 border-clinic-200 dark:bg-clinic-950/40 dark:text-clinic-300 dark:border-clinic-900
+            bg-clinic-700 text-white border-clinic-200 dark:bg-clinic-500 dark:text-white dark:border-clinic-900
           {% endif %}">
           {{ message }}
         </div>
