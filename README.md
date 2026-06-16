@@ -87,13 +87,14 @@ Keputusan akhir = **rata-rata probabilitas** ketiga model (soft voting), ambang 
 ## Tim
 
 Proyek Artificial Intelligence
-Teknik Informatika
-Universitas Padjadjaran
 | NPM | Nama |
 | --- | --- |
 | 140810240029 | Hamzah Abdillah Gabriela |
 | 140810240061 | Renadi Wilantara |
 | 140810240073 | Muhammad Rizky Khatami |
+
+Teknik Informatika  
+Universitas Padjadjaran
 
 ---
 
