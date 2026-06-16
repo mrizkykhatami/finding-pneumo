@@ -34,7 +34,7 @@ finding-pneumo/
 ├── run.py                  # entry point  -> python run.py
 ├── requirements.txt
 ├── README.md
-├── models/                 # file .keras (TIDAK di-repo, lihat di bawah)
+├── models/                 # file .keras
 └── app/
     ├── __init__.py         # create_app() + route index & dashboard
     ├── extensions.py       # db, login_manager
@@ -66,7 +66,7 @@ Buka **http://127.0.0.1:5000** → Registrasi dokter → Login → Patients → 
 
 ## Model
 
-File model `.keras` (~420 MB total) **tidak disertakan di repository** karena melebihi batas ukuran GitHub. Bagikan secara terpisah (Google Drive / dsb) dan letakkan di `models/list_models/<arsitektur>/`.
+File model `.keras` memiliki ukuran total yang cukup besar (~420 MB total) disimpan menggunakan Git Large File Storage (LFS) dan diletakkan pada `models/list_models/<arsitektur>/`.
 
 Preprocessing per arsitektur (sudah ditangani otomatis di `app/services/ai_engine.py`):
 - **DenseNet121:** input 299×299, raw 0-255 (preprocessing di dalam model), Grad-CAM `relu`
@@ -83,11 +83,12 @@ Keputusan akhir = **rata-rata probabilitas** ketiga model (soft voting), ambang 
 - Model dimuat **satu per satu lalu dilepas** → menghindari kehabisan memori.
 - **Peringatan confidence rendah** ditampilkan saat keyakinan model < 65%.
 - **Disclaimer medis** tampil di UI dan pada setiap laporan PDF.
-- `SECRET_KEY` & mode `debug` dapat diatur lewat environment variable.
 
 ## Tim
 
-Proyek Akhir - Artificial Intelligence (Semester 4).
+Proyek Artificial Intelligence
+Teknik Informatika
+Universitas Padjadjaran
 | NPM | Nama |
 | --- | --- |
 | 140810240029 | Hamzah Abdillah Gabriela |
