@@ -1,0 +1,53 @@
+{
+    "model_name": "DenseNet121",
+    "dataset_path": "/content/drive/MyDrive/pneumonia_project/dataset2",
+    "image_size": [
+        299,
+        299
+    ],
+    "batch_size": 32,
+    "seed": 42,
+    "class_names": [
+        "normal",
+        "pneumonia"
+    ],
+    "class_weights": {
+        "0": 0.9979,
+        "1": 1.0021
+    },
+    "training_stages": {
+        "stage1": {
+            "epochs": 10,
+            "optimizer": "Adam",
+            "learning_rate": "1e-4",
+            "monitor_metric": "val_recall"
+        },
+        "stage2_finetune": {
+            "epochs": 15,
+            "unfrozen_layers": 30,
+            "optimizer": "Adam",
+            "learning_rate": "1e-5",
+            "monitor_metric": "val_recall"
+        }
+    },
+    "evaluation_metrics_at_threshold_0_5": {
+        "accuracy": 0.9279,
+        "precision_pneumonia": 0.9677,
+        "recall_pneumonia": 0.8852,
+        "f1_score": 0.9247,
+        "auc_score": 0.9592
+    },
+    "evaluation_metrics_at_optimal_recall_threshold": {
+        "optimal_threshold": 0.1,
+        "accuracy": 0.8115,
+        "precision_pneumonia": 0.7461,
+        "recall_pneumonia": 0.9443,
+        "f1_score": 0.8336
+    },
+    "false_negative_analysis": {
+        "total_false_negatives": 35,
+        "bacterial_fn": 1,
+        "viral_fn": 0,
+        "unidentified_fn": 34
+    }
+}

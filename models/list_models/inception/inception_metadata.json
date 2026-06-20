@@ -1,0 +1,40 @@
+{
+    "model_name": "inceptionv3_final.keras",
+    "architecture": "InceptionV3 + Custom Head",
+    "threshold": 0.5,
+    "metrics": {
+        "accuracy": 0.940983606557377,
+        "precision": 1.0,
+        "recall": 0.8819672131147541,
+        "f1_score": 0.9372822299651568,
+        "auc_roc": 0.9557108304219295
+    },
+    "training": {
+        "epochs_stage1": 10,
+        "epochs_stage2": 20,
+        "seed": 42,
+        "class_weight": {
+            "0": 1.0,
+            "1": 1.0
+        }
+    },
+    "timestamp": "20260607_100526",
+    "developer_metadata": {
+        "task": "Binary Classification (Normal vs Pneumonia)",
+        "base_architecture": "InceptionV3",
+        "input_resolution": [
+            299,
+            299,
+            3
+        ],
+        "normalization_scale": "1/255.0",
+        "fine_tune_at_layer": 249
+    },
+    "inference_settings": {
+        "prediction_threshold": 0.5,
+        "class_mapping": {
+            "0": "NORMAL",
+            "1": "PNEUMONIA"
+        }
+    }
+}

@@ -1,0 +1,9 @@
+Fine Tuning
+Accuracy:	0.939344
+Precision:	0.989051
+Recall:	0.888525
+F1:	0.936097
+AUC:	0.976049
+
+[303, 3]
+[34, 271]
